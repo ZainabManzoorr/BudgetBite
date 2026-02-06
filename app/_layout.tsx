@@ -5,11 +5,11 @@ export default function RootLayout(){
       <Stack.Screen 
         name="index" 
         options={{
-         headerTitle: "BudgetBite",
-       }}
+          headerShown:false
+        }}
       />
       <Stack.Screen 
-      name="about"
+      name="Signup"
       options={{
         headerTitle:"BudgetBite",
       }} />
