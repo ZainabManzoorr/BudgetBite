@@ -6,29 +6,33 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from "react-native";
-import { router } from "expo-router";
+import React, {useState} from "react";
+import { supabase } from "@/lib/supabase";
+import { router, useRouter } from "expo-router";
 import { COLORS } from "../const/theme";
 import * as SecureStore from "expo-secure-store";
 
-const handleSignin = async () => {
-  try {
-    // 1️⃣ Call your backend
-    // await api.signup(name, email, password);
-     const token = "mock-token-123"; // replace later
+const SignIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-    // 2️⃣ Save token
-    await SecureStore.setItemAsync("authToken", token);
-
-    // 3️⃣ Navigate
-    router.replace("/home");
-  } catch (error) {
-    console.log("Login failed", error);
-  }
-};
-
-export default function SignIn() {
-  return (
+  async function signInWithEmail() {
+    setLoading(true);
+    const {error} = await supabase.auth.signInWithPassword({
+      email : email,
+      password : password,
+    });
+    if (error) Alert.alert(error.message);
+    setLoading(false);
+    if (!error) {
+      await SecureStore.setItemAsync("authToken", supabase.auth.getSession()?.access_token || "");
+      router.replace("/home");
+    }
+      return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
 
