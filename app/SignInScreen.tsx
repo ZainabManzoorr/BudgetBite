@@ -1,37 +1,44 @@
-import React from "react";
+
+import { COLORS } from "../const/theme";
+import React, { useState } from 'react'
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
+  ActivityIndicator,
   Alert,
-} from "react-native";
-import React, {useState} from "react";
-import { supabase } from "@/lib/supabase";
-import { router, useRouter } from "expo-router";
-import { COLORS } from "../const/theme";
-import * as SecureStore from "expo-secure-store";
+} from 'react-native'
+import { supabase } from '@/lib/supabase'
 
-const SignIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+const SignIn: React.FC = () => {
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
 
-  async function signInWithEmail() {
-    setLoading(true);
-    const {error} = await supabase.auth.signInWithPassword({
-      email : email,
-      password : password,
-    });
-    if (error) Alert.alert(error.message);
-    setLoading(false);
-    if (!error) {
-      await SecureStore.setItemAsync("authToken", supabase.auth.getSession()?.access_token || "");
-      router.replace("/home");
+  const handleSignIn = async (): Promise<void> => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password')
+      return
     }
+
+    setLoading(true)
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    setLoading(false)
+
+    if (error) {
+      Alert.alert('Login Error', error.message)
+    } else {
+      console.log('User:', data.user)
+      Alert.alert('Success', 'Logged in successfully!')
+    }
+  }
       return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
