@@ -1,6 +1,6 @@
-
+import { useRouter } from "expo-router";
 import { COLORS } from "../const/theme";
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,36 +9,43 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-} from 'react-native'
-import { supabase } from '@/lib/supabase'
+  SafeAreaView,
+} from "react-native";
+import { supabase } from "@/lib/supabase";
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
+  const router = useRouter();
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSignIn = async (): Promise<void> => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password')
-      return
+      Alert.alert("Error", "Please enter email and password");
+      return;
     }
 
-    setLoading(true)
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setLoading(false)
+      if (error) throw error;
 
-    if (error) {
-      Alert.alert('Login Error', error.message)
-    } else {
-      console.log('User:', data.user)
-      Alert.alert('Success', 'Logged in successfully!')
+      console.log("User:", data.user);
+
+      // Navigate after login
+      router.replace("/home");
+    } catch (error: any) {
+      Alert.alert("Login Error", error.message);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
       return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
@@ -61,7 +68,7 @@ const SignIn: React.FC = () => {
           style={styles.input}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleSignin}>
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
